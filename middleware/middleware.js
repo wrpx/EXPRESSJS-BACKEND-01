@@ -1,7 +1,7 @@
 // middleware.js
 const express = require("express");
 const morgan = require("morgan");
-const cors = require("cors"); // นำเข้า cors
+const cors = require("cors"); 
 
 const configureMiddleware = (app) => {
   app.use(cors()); 

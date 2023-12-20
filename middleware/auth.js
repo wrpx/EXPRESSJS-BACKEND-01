@@ -3,15 +3,14 @@ const jwt = require("jsonwebtoken");
 
 const auth = (req, res, next) => {
   try {
-    const token = req.headers.authorization.split(" ")[1];
-
-    if (!token) {
+    const payloadToken = req.headers.authorization.split(" ")[1];
+    if (!payloadToken) {
       return res
         .status(401)
         .send({ message: "No token, authorization denied" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(payloadToken, process.env.JWT_SECRET);
     req.user = decoded.user;
 
     next();

@@ -1,4 +1,3 @@
-//productController.js
 const Product = require("../Models/productModel");
 
 const sendResponse = (res, message) => {

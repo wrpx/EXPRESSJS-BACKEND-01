@@ -1,4 +1,3 @@
-//validate.js
 const validateProduct = (req, res, next) => {
   let { name, detail, price } = req.body;
 

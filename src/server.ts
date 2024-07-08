@@ -2,27 +2,13 @@ import express, { Express } from "express";
 import connectDB from "./config/db";
 import configureMiddleware from "./middleware/middleware";
 import productRoutes from "./Routes/productRoutes";
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-interface EnvironmentVariables {
-  PORT: number;
-  MONGODB_URI: string;
-  JWT_SECRET: string;
-}
-
-const env: EnvironmentVariables = {
-  PORT: parseInt(process.env.PORT || '5000', 10),
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/yourdb',
-  JWT_SECRET: process.env.JWT_SECRET || 'your_jwt_secret'
-};
+import env from './env';
 
 const app: Express = express();
 
 const startServer = async (): Promise<void> => {
   try {
-    await connectDB();
+    await connectDB(env.MONGODB_URI);
 
     configureMiddleware(app);
 

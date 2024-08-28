@@ -1,18 +1,22 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
-export interface IProduct extends Document {
-  name: string;
-  detail: string;
-  price: number;
+@Entity()
+export class Product {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column()
+  name!: string;
+
+  @Column()
+  detail!: string;
+
+  @Column("decimal", { precision: 10, scale: 2 })
+  price!: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }
-
-const productSchema: Schema = new Schema(
-  {
-    name: { type: String, required: true },
-    detail: { type: String, required: true },
-    price: { type: Number, required: true },
-  },
-  { timestamps: true }
-);
-
-export default mongoose.model<IProduct>("Product", productSchema);

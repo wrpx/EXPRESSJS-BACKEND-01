@@ -5,7 +5,11 @@ dotenv.config();
 
 const env = cleanEnv(process.env, {
   PORT: num({ default: 5000 }),
-  MONGODB_URI: str({ default: 'mongodb://localhost:27017/yourdb' }),
+  DB_HOST: str({ default: 'localhost' }),
+  DB_PORT: num({ default: 5432 }),
+  DB_USERNAME: str(),
+  DB_PASSWORD: str(),
+  DB_NAME: str(),
   JWT_SECRET: str(),
 });
 

@@ -1,5 +1,5 @@
 import express, { Express } from "express";
-import connectDB from "./config/db";
+import { connectDB } from "./config/db";
 import configureMiddleware from "./middleware/middleware";
 import productRoutes from "./Routes/productRoutes";
 import env from './env';
@@ -8,7 +8,7 @@ const app: Express = express();
 
 const startServer = async (): Promise<void> => {
   try {
-    await connectDB(env.MONGODB_URI);
+    await connectDB();
 
     configureMiddleware(app);
 

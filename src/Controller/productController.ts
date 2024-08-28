@@ -1,20 +1,22 @@
 import { Request, Response } from "express";
-import Product, { IProduct } from "../Models/productModel";
+import { AppDataSource } from "../config/db";
+import { Product } from "../Models/productModel";
 
-const sendResponse = (res: Response, message: string): void => {
-  res.send(message);
+const productRepository = AppDataSource.getRepository(Product);
+
+const sendResponse = (res: Response, status: number, data: any): void => {
+  res.status(status).json(data);
 };
 
 const handleError = (res: Response, error: unknown): void => {
   console.error(error);
-  res.status(500).send("Internal Server Error");
+  sendResponse(res, 500, { message: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" });
 };
 
 const list = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log(req.body);
-    const products = await Product.find({}).exec();
-    res.send(products);
+    const products = await productRepository.find();
+    sendResponse(res, 200, products);
   } catch (error) {
     handleError(res, error);
   }
@@ -22,12 +24,12 @@ const list = async (req: Request, res: Response): Promise<void> => {
 
 const getID = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id: string = req.params.id;
-    const product = await Product.findOne({ _id: id }).exec();
+    const id: number = parseInt(req.params.id);
+    const product = await productRepository.findOne({ where: { id } });
     if (product) {
-      res.send(product.toObject());
+      sendResponse(res, 200, product);
     } else {
-      res.status(404).send("Product not found");
+      sendResponse(res, 404, { message: "ไม่พบสินค้า" });
     }
   } catch (error) {
     handleError(res, error);
@@ -36,17 +38,15 @@ const getID = async (req: Request, res: Response): Promise<void> => {
 
 const put = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id: string = req.params.id;
-    const updatedProduct = await Product.findOneAndUpdate(
-      { _id: id },
-      req.body,
-      { new: true, runValidators: true }
-    ).exec();
+    const id: number = parseInt(req.params.id);
+    const product = await productRepository.findOne({ where: { id } });
     
-    if (updatedProduct) {
-      res.send(updatedProduct.toObject());
+    if (product) {
+      productRepository.merge(product, req.body);
+      const updatedProduct = await productRepository.save(product);
+      sendResponse(res, 200, updatedProduct);
     } else {
-      res.status(404).send("Product not found");
+      sendResponse(res, 404, { message: "ไม่พบสินค้า" });
     }
   } catch (error) {
     handleError(res, error);
@@ -55,10 +55,9 @@ const put = async (req: Request, res: Response): Promise<void> => {
 
 const post = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log("req.body", req.body);
-    const newProduct = new Product(req.body);
-    const savedProduct = await newProduct.save();
-    res.status(201).send(savedProduct.toObject());
+    const newProduct = productRepository.create(req.body);
+    const savedProduct = await productRepository.save(newProduct);
+    sendResponse(res, 201, savedProduct);
   } catch (error) {
     handleError(res, error);
   }
@@ -66,13 +65,14 @@ const post = async (req: Request, res: Response): Promise<void> => {
 
 const deleteProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id: string = req.params.id;
-    const deletedProduct = await Product.findOneAndDelete({ _id: id }).exec();
+    const id: number = parseInt(req.params.id);
+    const product = await productRepository.findOne({ where: { id } });
 
-    if (deletedProduct) {
-      sendResponse(res, "Product deleted successfully");
+    if (product) {
+      await productRepository.remove(product);
+      sendResponse(res, 200, { message: "ลบสินค้าสำเร็จ" });
     } else {
-      res.status(404).send("Product not found");
+      sendResponse(res, 404, { message: "ไม่พบสินค้า" });
     }
   } catch (error) {
     handleError(res, error);

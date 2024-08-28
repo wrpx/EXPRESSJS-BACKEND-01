@@ -1,25 +1,19 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
-export interface IUser extends Document {
-  username: string;
-  password: string;
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column({ unique: true })
+  username!: string;
+
+  @Column()
+  password!: string;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }
-
-const userSchema: Schema = new Schema(
-  {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-  },
-  { timestamps: true }
-);
-
-export default mongoose.model<IUser>("User", userSchema);

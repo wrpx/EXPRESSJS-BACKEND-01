@@ -1,9 +1,21 @@
-import mongoose from "mongoose";
+import { DataSource } from "typeorm";
+import env from '../env';
 
-const connectDB = async (uri?: string): Promise<void> => {
+const AppDataSource = new DataSource({
+  type: "postgres",
+  host: env.DB_HOST,
+  port: env.DB_PORT,
+  username: env.DB_USERNAME,
+  password: env.DB_PASSWORD,
+  database: env.DB_NAME,
+  entities: ["src/Models/*.ts"],
+  synchronize: true,
+  logging: false,
+});
+
+const connectDB = async (): Promise<void> => {
   try {
-    const mongoURI = uri || process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/product";
-    await mongoose.connect(mongoURI);
+    await AppDataSource.initialize();
     console.log("DB Connected");
   } catch (error) {
     console.error("DB Connection Error:", (error as Error).message);
@@ -11,4 +23,4 @@ const connectDB = async (uri?: string): Promise<void> => {
   }
 };
 
-export default connectDB;
+export { AppDataSource, connectDB };
